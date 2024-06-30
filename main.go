@@ -42,7 +42,7 @@ func generateBlock(prevblock Block, BPM int) (Block , error){
     nextblock.Index = prevblock.Index + 1
     nextblock.Timestamp = t.String()
     nextblock.BPM = BPM
-    nextblock.PrevHash = prevblock.hash
+    nextblock.PrevHash = prevblock.Hash
     nextblock.Hash = calculateHash(nextblock)
 
     return nextblock , nil
