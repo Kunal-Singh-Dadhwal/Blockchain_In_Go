@@ -23,7 +23,7 @@ type Block struct{
     Hash string // hash of present block
     PrevHash string // hash of next block
 }
-var Blockchain [] block // slice of block
+var Blockchain [] Block // slice of block
 
 //function to calculte the next hash using the data
 func calculateHash(block Block) string{
@@ -76,7 +76,9 @@ func replaceChain(nextblocks [] Block) {
 
 func run() error{
     mux := makeMuxRouter()
-    addr := os.Getenv("ADDR")
+    httpAddr := os.Getenv("ADDR")
+    log.Println(httpAddr)
+    
     log.Println("Listening on ", os.Getenv("ADDR"))
     s := &http.Server{
         Addr:           ":" + httpAddr,
@@ -93,14 +95,14 @@ func run() error{
     return nil
 }
 
-func makemuxrouter() http.Handler{
+func makeMuxRouter() http.Handler{
     muxRouter := mux.NewRouter()
 	muxRouter.HandleFunc("/", handleGetBlockchain).Methods("GET")
 	muxRouter.HandleFunc("/", handleWriteBlock).Methods("POST")
 	return muxRouter
 }
 
-func handleGetBlockchain(w http.ResponseWriter, r *http.request) {
+func handleGetBlockchain(w http.ResponseWriter, r *http.Request) {
     bytes, err := json.MarshalIndent(Blockchain, "", "  ")
     if(err != nil){
         http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -112,10 +114,10 @@ func handleGetBlockchain(w http.ResponseWriter, r *http.request) {
 type Message struct{
     BPM int
 }
-func handleWriteBlock(w http.ResponseWriter, r *http.request) {
+func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
     var m Message
 
-    decoder := json.NewDecoder(r.body)
+    decoder := json.NewDecoder(r.Body)
     if err := decoder.Decode(&m); err != nil {
 		respondWithJSON(w, r, http.StatusBadRequest, r.Body)
 		return
